@@ -4,29 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AJX</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-            background-color: #f4f4f9;
-        }
-        a {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 12px 20px;
-            background-color: #2b5cff;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-        }
-    </style>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#16161a">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h1>My Developer Portfolio</h1>
     <p>Welcome! Check out my projects below:</p>
+    <div class="container">
+    <h2>Custom Hash Generator</h2>
     
-    <a href="./hash-generator/">Custom Hash Generator App</a>
+    <input type="text" id="userInput" placeholder="Text input...">
+    
+    <!-- Todo lo que está aquí adentro estará oculto al inicio -->
+        <div class="hidden-elements">
+            <input type="text" id="roundsInput" value="1" placeholder="Number of Rounds">
+            
+            <button id="btnGenerate">Generar Hash</button>
+
+            <div class="result-box">
+                <span></span>
+                <p id="hashResult" tabindex="0"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

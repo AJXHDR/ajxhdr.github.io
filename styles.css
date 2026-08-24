@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 200;
+    background-color: #0a0a0b;
+    color: #f1f1f1;
+    margin: 0;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column; /* Alinea los elementos en columna (de arriba a abajo) */
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.container {
+    background-color: #151518;
+    padding: 20px;
+    border-radius: 30px;
+    box-shadow: 0 4px 20px #00000080; /* Sombra más suave */
+    max-width: 400px; /* Ancho inicial */
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+
+    /* Animación de transición suave */
+    transition: max-width 0.3s ease, transform 0.3s ease;
+}
+
+h1 {
+    font-size: 2em;
+    font-weight: 300;
+    margin-top: 0;       /* Controla el espacio superior */
+    margin-bottom: 0px; /* Controla el espacio hacia el input */
+}
+
+h2 {
+    font-size: 1em;
+    font-weight: 300;
+    margin-top: 0;       /* Controla el espacio superior */
+    margin-bottom: 15px; /* Controla el espacio hacia el input */
+}
+
+/* Se activa automáticamente al hacer clic dentro de #userInput */
+.container:has(#userInput:focus) {
+    max-width: 400px; /* Nuevo ancho expandido */
+    transform: scale(1.02); /* Ligero aumento de tamaño visual */
+}
+
+/* 1. Mantener el contenedor expandido mientras CUALQUIER elemento tenga el foco */
+.container:focus-within {
+    max-width: 400px; /* Tu ancho expandido */
+    transform: scale(1.02); /* Mantener la escala */
+}
+
+/* Estado inicial: Elementos ocultos con altura 0 y transparentes */
+.hidden-elements {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.4s ease;
+    padding: 4px 0; /* Da espacio para que el borde azul no toque los límites */
+}
+
+/* Estado expandido: Se activa al hacer clic dentro del contenedor */
+.container:focus-within .hidden-elements {
+    max-height: 300px; /* Altura suficiente para mostrar el contenido */
+    opacity: 1;
+    overflow: visible; /* Permite mostrar el contorno azul completo sin cortarlo */
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border: 1px solid #202020;
+    background-color: #0a0a0b;
+    color: #fff;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #2b5cff;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+}
+
+.result-box {
+    margin-top: 20px;
+    word-break: break-all;
+    background-color: #0a0a0b;
+    padding: 12px;
+    border-radius: 10px;
+}

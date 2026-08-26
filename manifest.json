@@ -3,8 +3,8 @@
   "short_name": "AJX",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#16161a",
-  "theme_color": "#16161a",
+  "background_color": "#0E0E0E",
+  "theme_color": "#0E0E0E",
   "icons": [
     {
       "src": "icon-192.png",

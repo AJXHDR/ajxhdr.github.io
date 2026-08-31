@@ -97,3 +97,20 @@ if ('serviceWorker' in navigator) {
             .catch(err => console.error('PWA registration failed:', err));
     });
 }
+
+// Detección automática de actualizaciones de la PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        // Recarga automática cuando hay una nueva versión lista
+                        window.location.reload();
+                    }
+                });
+            });
+        });
+    });
+}

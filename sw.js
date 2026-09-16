@@ -1,5 +1,5 @@
 // Cambiar versión cada vez que haya cambios visuales o de código
-const CACHE_NAME = 'ajx-v5';
+const CACHE_NAME = 'ajx-v6';
 const ASSETS = [
     './',
     './index.html',
@@ -7,7 +7,9 @@ const ASSETS = [
     './script.js',
     './manifest.json',
     './icon-192.png',
-    './icon-512.png'
+    './icon-512.png',
+    './modules/metadata-cleaner.html',
+    './modules/metadata-cleaner.js'
 ];
 
 // 1. Instalar y forzar al nuevo Service Worker a activarse sin esperar

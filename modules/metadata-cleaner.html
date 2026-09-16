@@ -1,0 +1,18 @@
+<div class="container">
+    <h2>Metadata Cleaner</h2>
+    <p class="module-desc">Strip metadata while maintaining 100% native quality.</p>
+
+    <!-- Hidden file input -->
+    <input type="file" id="fileInput" accept="image/jpeg,image/png,application/pdf" style="display: none;">
+    
+    <button id="btnSelectFile" type="button">Select File</button>
+    
+    <div class="hidden-elements" id="cleanerStatusArea">
+        <p id="fileInfo"></p>
+        <button id="btnCleanMetadata" style="background-color: #28a745;">Clean Metadata</button>
+        
+        <div class="result-box">
+            <p id="cleanerResult" tabindex="0">Waiting for file...</p>
+        </div>
+    </div>
+</div>

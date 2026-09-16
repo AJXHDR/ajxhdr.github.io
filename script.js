@@ -1,19 +1,45 @@
-// Algoritmo traducido a JS local nativo (0% internet)
+// ==========================================
+// 1. MODULAR COMPONENT LOADER
+// ==========================================
+async function loadComponent(targetId, htmlPath, jsPath = null) {
+    try {
+        const response = await fetch(htmlPath);
+        const html = await response.text();
+        const target = document.getElementById(targetId);
+        
+        if (target) {
+            target.innerHTML = html;
+            
+            // Inject module-specific JS if it exists and hasn't been loaded yet
+            if (jsPath && !document.querySelector(`script[src="${jsPath}"]`)) {
+                const script = document.createElement('script');
+                script.src = jsPath;
+                document.body.appendChild(script);
+            }
+        }
+    } catch (error) {
+        console.error(`Error loading ${htmlPath}:`, error);
+    }
+}
+
+// Load modules when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    loadComponent('metadata-cleaner-container', './modules/metadata-cleaner.html', './modules/metadata-cleaner.js');
+});
+
+// ==========================================
+// 2. HASH GENERATOR LOGIC
+// ==========================================
 async function generateCustomHash(inputText) {
     if (!inputText) return "";
 
-    // 1. Convertir el texto a bytes
     const encoder = new TextEncoder();
     const data = encoder.encode(inputText);
-
-    // 2. Generar el SHA-256 en el navegador
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const byteSignature = new Int8Array(hashBuffer);
 
-    // 3. Tu lógica de pool de caracteres y entropía
     const charPool = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
     const poolLength = charPool.length;
-
     let result = "";
 
     for (let i = 0; i < 20; i++) {
@@ -28,18 +54,14 @@ async function generateCustomHash(inputText) {
     return result;
 }
 
-// Función modular para encadenar ejecuciones
 async function runHashLoop(initialText, iterations) {
     let currentText = initialText;
-
     for (let i = 0; i < iterations; i++) {
         currentText = await generateCustomHash(currentText);
     }
-
     return currentText;
 }
 
-// 4. Escuchador del botón (PÓNLO AQUÍ ABAJO)
 document.getElementById('btnGenerate').addEventListener('click', async () => {
     const textInput = document.getElementById('userInput').value.trim();
     const roundsInput = parseInt(document.getElementById('roundsInput').value) || 1;
@@ -47,70 +69,62 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
 
     if (!textInput) {
         resultDisplay.textContent = "Input text first...";
+        resultDisplay.classList.remove('has-value'); // Keep dim
         return;
     }
 
     resultDisplay.textContent = "Calculating...";
+    resultDisplay.classList.remove('has-value'); // Keep dim while thinking
 
     try {
         const finalHash = await runHashLoop(textInput, roundsInput);
         resultDisplay.textContent = finalHash;
+        resultDisplay.classList.add('has-value'); // <--- TURN ON COLOR
     } catch (error) {
-        console.error("Error al generar el hash:", error);
+        console.error("Error generating hash:", error);
         resultDisplay.textContent = "An error occurred.";
+        resultDisplay.classList.remove('has-value');
     }
 });
 
-// Copiar el hash al hacer clic en el resultado
 document.getElementById('hashResult').addEventListener('click', async () => {
     const resultDisplay = document.getElementById('hashResult');
     const textToCopy = resultDisplay.textContent;
 
-    // Ignora clics si es un mensaje de estado
     if (!textToCopy || textToCopy === "Input text first..." || textToCopy === "Calculating..." || textToCopy === "Copied to clipboard!" || textToCopy === "Waiting for text...") return;
 
     try {
         await navigator.clipboard.writeText(textToCopy);
-
         resultDisplay.textContent = "Copied to clipboard!";
         
         setTimeout(() => {
-            // Reinicia la caja al mensaje inicial
             resultDisplay.textContent = "Waiting for text...";
-            // 2. Limpia el campo de Number of Rounds
+            resultDisplay.classList.remove('has-value'); // <--- TURN OFF COLOR
             document.getElementById('roundsInput').value = '';
-            // Remueve el foco para comprimir el contenedor
             if (document.activeElement) {
                 document.activeElement.blur();
             }
         }, 500);
     } catch (err) {
-        console.error("Error", err);
+        console.error("Copy error:", err);
     }
 });
 
-// PWA Registration
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('AJX PWA ready:', reg.scope))
-            .catch(err => console.error('PWA registration failed:', err));
-    });
-}
-
-// Detección automática de actualizaciones de la PWA
+// ==========================================
+// 3. SERVICE WORKER & UPDATES
+// ==========================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then(reg => {
+            console.log('AJX PWA ready:', reg.scope);
             reg.addEventListener('updatefound', () => {
                 const newWorker = reg.installing;
                 newWorker.addEventListener('statechange', () => {
                     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        // Recarga automática cuando hay una nueva versión lista
                         window.location.reload();
                     }
                 });
             });
-        });
+        }).catch(err => console.error('PWA registration failed:', err));
     });
 }

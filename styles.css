@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
+:root {
+    --container-width: 400px; /* Cambia el ancho de todos los contenedores aquí */
+}
+
 body {
     font-family: 'Inter', sans-serif;
     font-size: 16px;
@@ -9,68 +13,65 @@ body {
     margin: 0;
     padding: 40px 20px;
     display: flex;
-    flex-direction: column; /* Alinea los elementos en columna (de arriba a abajo) */
+    flex-direction: column;
     align-items: center;
     min-height: 100vh;
     box-sizing: border-box;
+}
+
+/* Elimina el envoltorio del ID inyectado para que el .container herede directamente el layout de body */
+[id$="-container"] {
+    display: contents;
 }
 
 .container {
     background-color: #151518;
     padding: 20px;
     border-radius: 30px;
-    box-shadow: 0 4px 20px #00000080; /* Sombra más suave */
-    max-width: 400px; /* Ancho inicial */
+    box-shadow: 0 4px 20px #00000080;
+    max-width: var(--container-width);
     width: 100%;
     text-align: center;
     margin-top: 20px;
-
-    /* Animación de transición suave */
+    box-sizing: border-box;
     transition: max-width 0.3s ease, transform 0.3s ease;
 }
 
 h1 {
     font-size: 2em;
     font-weight: 300;
-    margin-top: 0;       /* Controla el espacio superior */
-    margin-bottom: 0px; /* Controla el espacio hacia el input */
+    margin-top: 0;
+    margin-bottom: 0px;
 }
 
 h2 {
     font-size: 1em;
     font-weight: 300;
-    margin-top: 0;       /* Controla el espacio superior */
-    margin-bottom: 15px; /* Controla el espacio hacia el input */
+    margin-top: 0;
+    margin-bottom: 15px;
 }
 
-/* Se activa automáticamente al hacer clic dentro de #userInput */
-.container:has(#userInput:focus) {
-    max-width: 400px; /* Nuevo ancho expandido */
-    transform: scale(1.02); /* Ligero aumento de tamaño visual */
-}
-
-/* 1. Mantener el contenedor expandido mientras CUALQUIER elemento tenga el foco */
+.container:has(#userInput:focus),
 .container:focus-within {
-    max-width: 400px; /* Tu ancho expandido */
-    transform: scale(1.02); /* Mantener la escala */
+    max-width: var(--container-width);
+    transform: scale(1.02);
 }
 
-/* Estado inicial: Elementos ocultos con altura 0 y transparentes */
 .hidden-elements {
     max-height: 0;
     opacity: 0;
     overflow: hidden;
     transition: max-height 0.4s ease, opacity 0.4s ease;
-    padding: 4px 0; /* Da espacio para que el borde azul no toque los límites */
+    padding: 4px 0;
 }
 
-/* Estado expandido: Se activa al hacer clic dentro del contenedor */
 .container:focus-within .hidden-elements {
-    max-height: 300px; /* Altura suficiente para mostrar el contenido */
+    max-height: 300px;
     opacity: 1;
-    overflow: visible; /* Permite mostrar el contorno azul completo sin cortarlo */
+    overflow: visible;
 }
 
+/* 1. El texto real de los inputs será blanco */
 input[type="text"],
 input[type="number"] {
     width: 100%;
@@ -80,9 +81,17 @@ input[type="number"] {
     border-radius: 10px;
     border: 1px solid #202020;
     background-color: #0a0a0b;
-    color: #fff;
+    color: #f1f1f1;
     box-sizing: border-box;
     font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+}
+
+/* 2. El placeholder será opaco */
+input::placeholder {
+    color: #6a6a75; /* Gris opaco tipo fantasma */
+    opacity: 1; /* Esto apaga la transparencia nativa de Firefox */
 }
 
 button {
@@ -101,6 +110,42 @@ button {
     margin-top: 20px;
     word-break: break-all;
     background-color: #0a0a0b;
-    padding: 12px;
+    padding: 10px; /* Igualado al padding de los inputs */
     border-radius: 10px;
+    
+    /* Altura exacta para igualar los 38px de los inputs */
+    min-height: 38px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+/* --- Textos de apoyo en los módulos --- */
+.module-desc {
+    font-size: 14px;
+    color: #a1a1aa; /* Gris sutil para jerarquía secundaria */
+    margin-bottom: 20px;
+}
+
+#fileInfo {
+    font-size: 13px;
+    color: #d1d1d6;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    word-break: break-all;
+}
+
+/* 3. La caja de resultado empieza opaca (modo espera) */
+.result-box p {
+    font-size: 14px;
+    font-weight: 300;
+    color: #6a6a75; /* Mismo gris opaco del placeholder */
+    margin: 0; 
+    transition: color 0.3s ease; /* Transición suave de color */
+}
+
+/* 4. Esta clase la inyectaremos cuando haya un resultado */
+.result-box p.has-value {
+    color: #f1f1f1; /* ¡Se ilumina en blanco! */
 }

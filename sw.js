@@ -9,7 +9,8 @@ const ASSETS = [
     './icon-192.png',
     './icon-512.png',
     './modules/metadata-cleaner.html',
-    './modules/metadata-cleaner.js'
+    './modules/metadata-cleaner.js',
+    './modules/link-resolver.js' // <-- Se agrega el nuevo módulo
 ];
 
 // 1. Instalar y forzar al nuevo Service Worker a activarse sin esperar
@@ -27,11 +28,11 @@ self.addEventListener('activate', (e) => {
             return Promise.all(
                 keys.map((key) => {
                     if (key !== CACHE_NAME) {
-                        return caches.delete(key); // Borra la v1, v2, etc.
+                        return caches.delete(key);
                     }
                 })
             );
-        }).then(() => self.clients.claim()) // Toma control de las pestañas abiertas
+        }).then(() => self.clients.claim())
     );
 });
 

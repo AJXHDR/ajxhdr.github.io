@@ -114,18 +114,21 @@ document.getElementById('hashResult').addEventListener('click', async () => {
 // ==========================================
 // 3. SERVICE WORKER & UPDATES
 // ==========================================
+let refreshing = false;
+
 if ('serviceWorker' in navigator) {
+    // 1. Escuchar cuando el nuevo Service Worker toma el control y recargar la página
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+        }
+    });
+
+    // 2. Registrar el Service Worker al cargar la página
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then(reg => {
             console.log('AJX PWA ready:', reg.scope);
-            reg.addEventListener('updatefound', () => {
-                const newWorker = reg.installing;
-                newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        window.location.reload();
-                    }
-                });
-            });
         }).catch(err => console.error('PWA registration failed:', err));
     });
 }

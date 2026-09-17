@@ -1,5 +1,5 @@
 // Cambiar versión cada vez que haya cambios visuales o de código
-const CACHE_NAME = 'ajx-v6';
+const CACHE_NAME = 'ajx-v7';
 const ASSETS = [
     './',
     './index.html',

@@ -33,6 +33,16 @@
     </div>
     <div id="metadata-cleaner-container">
     </div>
-    <script src="script.js"></script>
+    <div class="container">
+        <h2>Link Resolver</h2>
+        <input type="text" id="resolverInput" placeholder="Paste X or Instagram link...">
+        <button id="btnResolve">Resolve & Download</button>
+
+        <div id="resolverResult" class="result-box" style="display: none;">
+            <!-- Aquí desplegaremos el preview o botón de descarga -->
+        </div>
+    </div>
+    <!-- Cambiado a type="module" -->
+    <script type="module" src="script.js"></script>
 </body>
 </html>

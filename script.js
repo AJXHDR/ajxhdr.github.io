@@ -1,3 +1,4 @@
+import { resolveLink } from './modules/link-resolver.js';
 // ==========================================
 // 1. MODULAR COMPONENT LOADER
 // ==========================================
@@ -128,3 +129,36 @@ if ('serviceWorker' in navigator) {
         }).catch(err => console.error('PWA registration failed:', err));
     });
 }
+
+const resolverInput = document.getElementById('resolverInput');
+const btnResolve = document.getElementById('btnResolve');
+const resolverResult = document.getElementById('resolverResult');
+
+btnResolve.addEventListener('click', async () => {
+  const url = resolverInput.value.trim();
+  if (!url) {
+    alert('Please enter a valid link.');
+    return;
+  }
+
+  btnResolve.disabled = true;
+  btnResolve.textContent = 'Processing...';
+  resolverResult.style.display = 'block';
+  resolverResult.innerHTML = '<p>Fetching download link...</p>';
+
+  const response = await resolveLink(url);
+
+  btnResolve.disabled = false;
+  btnResolve.textContent = 'Resolve & Download';
+
+  if (response.success) {
+    resolverResult.innerHTML = `
+      <p><strong>Platform:</strong> ${response.platform}</p>
+      <a href="${response.mediaUrl}" target="_blank" rel="noopener noreferrer" style="color: #0070f3; text-decoration: underline;">
+        Open/Download ${response.type}
+      </a>
+    `;
+  } else {
+    resolverResult.innerHTML = `<p style="color: red;">Error: ${response.error || 'Could not resolve link.'}</p>`;
+  }
+});

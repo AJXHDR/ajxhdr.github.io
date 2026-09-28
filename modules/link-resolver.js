@@ -14,39 +14,50 @@ export async function resolveLink(url) {
     const data = await response.json();
     return data;
   } catch (error) {
-    return { success: false, error: 'Connection error with the backend.' };
+    return { success: false, error: 'Connection error with backend.' };
   }
 }
 
-// Lógica de descarga directa vía Blob (1-Clic en iOS / Android / PC)
+// Descarga directa utilizando el Proxy de Apps Script
 export async function downloadFileDirectly(mediaUrl, filename = 'video.mp4') {
   try {
-    const response = await fetch(mediaUrl, { mode: 'cors' });
-    
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8',
+      },
+      body: JSON.stringify({
+        action: 'proxy',
+        mediaUrl: mediaUrl
+      })
+    });
+
+    const data = await response.json();
+
+    if (!data.success || !data.base64) {
+      throw new Error(data.error || 'Failed to retrieve media proxy');
     }
 
-    const blob = await response.blob();
-    
-    // Si el blob resulta vacío por bloqueo de CORS, forzamos abrir el enlace directo
-    if (blob.size === 0) {
-      window.open(mediaUrl, '_blank');
-      return;
+    // Convertir Base64 a objeto Blob local
+    const byteCharacters = atob(data.base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: data.mimeType || 'video/mp4' });
 
+    // Disparar descarga directa del navegador
     const blobUrl = URL.createObjectURL(blob);
-    
     const a = document.createElement('a');
     a.href = blobUrl;
     a.download = filename;
     document.body.appendChild(a);
     a.click();
-    
+
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
   } catch (error) {
-    // Si falla el fetch por política de CORS, abrimos el enlace multimedia directamente
-    window.open(mediaUrl, '_blank');
+    alert('Download failed: ' + error.message);
   }
 }

@@ -1,4 +1,5 @@
-import { resolveLink } from './modules/link-resolver.js';
+import { resolveLink, downloadFileDirectly } from './modules/link-resolver.js';
+
 // ==========================================
 // 1. MODULAR COMPONENT LOADER
 // ==========================================
@@ -133,35 +134,74 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// ==========================================
+// 4. LINK RESOLVER LOGIC
+// ==========================================
 const resolverInput = document.getElementById('resolverInput');
 const btnResolve = document.getElementById('btnResolve');
 const resolverResult = document.getElementById('resolverResult');
 
 btnResolve.addEventListener('click', async () => {
-  const url = resolverInput.value.trim();
-  if (!url) {
-    alert('Please enter a valid link.');
-    return;
-  }
+    const url = resolverInput.value.trim();
+    if (!url) {
+        alert('Please enter a valid link.');
+        return;
+    }
 
-  btnResolve.disabled = true;
-  btnResolve.textContent = 'Processing...';
-  resolverResult.style.display = 'block';
-  resolverResult.innerHTML = '<p>Fetching download link...</p>';
+    btnResolve.disabled = true;
+    btnResolve.textContent = 'Processing...';
+    resolverResult.style.display = 'block';
+    resolverResult.innerHTML = '<p>Fetching download links...</p>';
 
-  const response = await resolveLink(url);
+    const response = await resolveLink(url);
 
-  btnResolve.disabled = false;
-  btnResolve.textContent = 'Resolve & Download';
+    btnResolve.disabled = false;
+    btnResolve.textContent = 'Resolve & Download';
 
-  if (response.success) {
-    resolverResult.innerHTML = `
-      <p><strong>Platform:</strong> ${response.platform}</p>
-      <a href="${response.mediaUrl}" target="_blank" rel="noopener noreferrer" style="color: #0070f3; text-decoration: underline;">
-        Open/Download ${response.type}
-      </a>
-    `;
-  } else {
-    resolverResult.innerHTML = `<p style="color: red;">Error: ${response.error || 'Could not resolve link.'}</p>`;
-  }
+    if (response.success) {
+        let htmlContent = `<p><strong>Platform:</strong> ${response.platform}</p>`;
+
+        // Generar botones dinámicos por cada resolución disponible
+        if (response.variants && response.variants.length > 0) {
+            response.variants.forEach((variant) => {
+                htmlContent += `
+                    <button class="btn-download-variant" data-url="${variant.url}" data-filename="${response.platform}_${variant.quality}.mp4"
+                            style="display: block; width: 100%; margin-top: 10px; padding: 12px; background-color: #0070f3; color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                        Download ${variant.quality} (${response.type})
+                    </button>
+                `;
+            });
+        } else {
+            // Caso de respaldo si solo existe un enlace
+            htmlContent += `
+                <button class="btn-download-variant" data-url="${response.mediaUrl}" data-filename="${response.platform}_video.mp4"
+                        style="display: block; width: 100%; margin-top: 10px; padding: 12px; background-color: #0070f3; color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    Download ${response.type}
+                </button>
+            `;
+        }
+
+        resolverResult.innerHTML = htmlContent;
+
+        // Asignar el evento Blob a cada botón generado
+        document.querySelectorAll('.btn-download-variant').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const targetBtn = e.target;
+                const mediaUrl = targetBtn.getAttribute('data-url');
+                const filename = targetBtn.getAttribute('data-filename');
+                
+                const originalText = targetBtn.textContent;
+                targetBtn.disabled = true;
+                targetBtn.textContent = 'Downloading...';
+
+                await downloadFileDirectly(mediaUrl, filename);
+
+                targetBtn.disabled = false;
+                targetBtn.textContent = originalText;
+            });
+        });
+
+    } else {
+        resolverResult.innerHTML = `<p style="color: red;">Error: ${response.error || 'Could not resolve link.'}</p>`;
+    }
 });

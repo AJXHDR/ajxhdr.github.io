@@ -19,7 +19,7 @@ export async function resolveLink(url) {
 }
 
 // Descarga directa utilizando el Proxy de Apps Script
-export async function downloadFileDirectly(mediaUrl, filename = 'video.mp4') {
+export async function downloadFileDirectly(mediaUrl, filename = 'media.mp4') {
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
@@ -38,6 +38,23 @@ export async function downloadFileDirectly(mediaUrl, filename = 'video.mp4') {
       throw new Error(data.error || 'Failed to retrieve media proxy');
     }
 
+    // Ajustar nombre y extensión según el MIME Type recibido del proxy
+    let finalFilename = filename;
+    if (data.mimeType) {
+      const isImage = data.mimeType.startsWith('image/');
+      let ext = 'mp4';
+      
+      if (isImage) {
+        ext = 'jpg';
+        if (data.mimeType.includes('png')) ext = 'png';
+        if (data.mimeType.includes('webp')) ext = 'webp';
+
+        // Reemplazar _video por _image en el nombre del archivo
+        finalFilename = finalFilename.replace(/_video/g, '_image');
+        finalFilename = finalFilename.replace(/\.[^/.]+$/, `.${ext}`);
+      }
+    }
+
     // Convertir Base64 a objeto Blob local
     const byteCharacters = atob(data.base64);
     const byteNumbers = new Array(byteCharacters.length);
@@ -47,11 +64,11 @@ export async function downloadFileDirectly(mediaUrl, filename = 'video.mp4') {
     const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], { type: data.mimeType || 'video/mp4' });
 
-    // Disparar descarga directa del navegador
+    // Disparar descarga directa
     const blobUrl = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = blobUrl;
-    a.download = filename;
+    a.download = finalFilename;
     document.body.appendChild(a);
     a.click();
 

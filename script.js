@@ -161,7 +161,7 @@ btnResolve.addEventListener('click', async () => {
     if (response.success) {
         let htmlContent = `<p><strong>Platform:</strong> ${response.platform}</p>`;
 
-        // Generar botones dinámicos por cada resolución disponible
+        // Generar botones dinámicos por cada resolución disponible (videos)
         if (response.variants && response.variants.length > 0) {
             response.variants.forEach((variant) => {
                 htmlContent += `
@@ -172,9 +172,13 @@ btnResolve.addEventListener('click', async () => {
                 `;
             });
         } else {
-            // Caso de respaldo si solo existe un enlace
+            // Nombre dinámico según si el tipo es imagen o video
+            const isImage = response.type === 'image';
+            const fileLabel = isImage ? 'image' : 'video';
+            const fileExt = isImage ? 'jpg' : 'mp4';
+
             htmlContent += `
-                <button class="btn-download-variant" data-url="${response.mediaUrl}" data-filename="${response.platform}_video.mp4"
+                <button class="btn-download-variant" data-url="${response.mediaUrl}" data-filename="${response.platform}_${fileLabel}.${fileExt}"
                         style="display: block; width: 100%; margin-top: 10px; padding: 12px; background-color: #0070f3; color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
                     Download ${response.type}
                 </button>
@@ -183,7 +187,7 @@ btnResolve.addEventListener('click', async () => {
 
         resolverResult.innerHTML = htmlContent;
 
-        // Asignar el evento Blob a cada botón generado
+        // Asignar evento de descarga Blob
         document.querySelectorAll('.btn-download-variant').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const targetBtn = e.target;

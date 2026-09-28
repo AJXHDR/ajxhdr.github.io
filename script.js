@@ -209,3 +209,32 @@ btnResolve.addEventListener('click', async () => {
         resolverResult.innerHTML = `<p style="color: red;">Error: ${response.error || 'Could not resolve link.'}</p>`;
     }
 });
+
+// ==========================================
+// 5. DYNAMIC FOOTER VERSION DISPLAY
+// ==========================================
+async function displayAppVersion() {
+  const versionEl = document.getElementById('appVersion');
+  if (!versionEl) return;
+
+  if ('caches' in window) {
+    try {
+      const keys = await caches.keys();
+      // Buscar la clave que empiece con ajx-v
+      const ajxCache = keys.find(key => key.startsWith('ajx-v'));
+      if (ajxCache) {
+        // Convierte 'ajx-v11' en 'AJX v11'
+        const formatted = ajxCache.replace('ajx-', 'AJX ');
+        versionEl.textContent = formatted;
+        return;
+      }
+    } catch (e) {
+      console.error('Error reading cache version:', e);
+    }
+  }
+  
+  // Fallback si no hay caché registrado aún
+  versionEl.textContent = 'AJX v11';
+}
+
+document.addEventListener('DOMContentLoaded', displayAppVersion);

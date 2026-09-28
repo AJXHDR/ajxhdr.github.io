@@ -21,8 +21,20 @@ export async function resolveLink(url) {
 // Lógica de descarga directa vía Blob (1-Clic en iOS / Android / PC)
 export async function downloadFileDirectly(mediaUrl, filename = 'video.mp4') {
   try {
-    const response = await fetch(mediaUrl);
+    const response = await fetch(mediaUrl, { mode: 'cors' });
+    
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
     const blob = await response.blob();
+    
+    // Si el blob resulta vacío por bloqueo de CORS, forzamos abrir el enlace directo
+    if (blob.size === 0) {
+      window.open(mediaUrl, '_blank');
+      return;
+    }
+
     const blobUrl = URL.createObjectURL(blob);
     
     const a = document.createElement('a');
@@ -31,11 +43,10 @@ export async function downloadFileDirectly(mediaUrl, filename = 'video.mp4') {
     document.body.appendChild(a);
     a.click();
     
-    // Limpieza de memoria
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
   } catch (error) {
-    // Si la CDN bloquea fetch por CORS, abre el video en nueva pestaña como respaldo
+    // Si falla el fetch por política de CORS, abrimos el enlace multimedia directamente
     window.open(mediaUrl, '_blank');
   }
 }
